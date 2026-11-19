@@ -1,61 +1,19 @@
-
-name: PS3 PPU Build
-
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download project
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            autoconf automake bison flex \
-            gcc g++ make libelf-dev libgmp-dev \
-            zlib1g-dev libtool libtool-bin \
-            pkg-config patch texinfo python3
-
-      - name: Download PS3 toolchain
-        run: |
-          curl -fL --retry 3 \
-            "https://github.com/ps3dev/ps3toolchain/releases/download/nightly-2026-10-11/ps3dev-linux-X64.tar.gz" \
-            -o "$RUNNER_TEMP/ps3dev.tar.gz"
-          mkdir -p "$RUNNER_TEMP/ps3dev"
-          tar -xzf "$RUNNER_TEMP/ps3dev.tar.gz" -C "$RUNNER_TEMP/ps3dev"
-
-      - name: Download PSL1GHT
-        run: |
-          git clone --depth 1 https://github.com/ps3dev/PSL1GHT.git "$RUNNER_TEMP/PSL1GHT"
-
-      - name: Build and install PSL1GHT
-        run: |
-          export PS3DEV="$RUNNER_TEMP/ps3dev/ps3dev"
-          export PSL1GHT="$RUNNER_TEMP/psl1ght-install"
-          export PATH="$PS3DEV/bin:$PS3DEV/ppu/bin:$PS3DEV/spu/bin:$PATH"
-
-          echo "PS3DEV=$PS3DEV" >> "$GITHUB_ENV"
-          echo "PSL1GHT=$PSL1GHT" >> "$GITHUB_ENV"
-          echo "PATH=$PATH" >> "$GITHUB_ENV"
-
-          cd "$RUNNER_TEMP/PSL1GHT"
-          make install-ctrl
-          make -j2
-          make install
-
-      - name: Verify SDK
+      - name: Verify SDK and compile test
         run: |
           echo "Verificando PPU-GCC:"
           ppu-gcc --version
+
           echo "Verificando PSL1GHT:"
           test -d "$PSL1GHT/ppu"
-          echo "SDK instalado."
-          
+
+          echo "Compilando programa de teste:"
+          cat > "$RUNNER_TEMP/test.c" <<'EOF'
+          #include <stdio.h>
+          int main(void) {
+              printf("GTA SA ONLINE PS3\n");
+              return 0;
+          }
+          EOF
+
+          ppu-gcc "$RUNNER_TEMP/test.c" -o "$RUNNER_TEMP/test.elf"
+          file "$RUNNER_TEMP/test.elf"
