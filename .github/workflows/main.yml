@@ -1,4 +1,4 @@
-name: PS3 Project Build
+name: PS3 PPU Build
 
 on:
   push:
@@ -13,7 +13,17 @@ jobs:
       - name: Download project
         uses: actions/checkout@v4
 
-      - name: Show project files
+      - name: Check source code
         run: |
-          echo "GTA SA ONLINE PS3"
-          ls -R
+          echo "Verificando codigo C"
+          test -f client/ps3/client.c
+          cat client/ps3/client.c
+
+      - name: Check PPU compiler
+        run: |
+          if command -v ppu-gcc >/dev/null 2>&1; then
+            ppu-gcc --version
+          else
+            echo "PPU-GCC ainda nao esta instalado."
+            exit 1
+          fi
