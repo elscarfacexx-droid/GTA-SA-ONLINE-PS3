@@ -1,39 +1,13 @@
-name: PS3 PPU Build
-
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download project
-        uses: actions/checkout@v4
-
-      - name: Download PS3 toolchain
-        run: |
-          curl -fL --retry 3 \
-            "https://github.com/ps3dev/ps3toolchain/releases/download/nightly-2026-10-11/ps3dev-linux-X64.tar.gz" \
-            -o "$RUNNER_TEMP/ps3dev.tar.gz"
-
-      - name: Extract PS3 toolchain
-        run: |
-          mkdir -p "$RUNNER_TEMP/ps3dev"
-          tar -xzf "$RUNNER_TEMP/ps3dev.tar.gz" \
-            -C "$RUNNER_TEMP/ps3dev"
-
-      - name: Find PPU compiler
+      - name: Compile PS3 client
         run: |
           PPU_GCC="$(find "$RUNNER_TEMP/ps3dev" -name ppu-gcc | head -n 1)"
+          mkdir -p build
+          "$PPU_GCC" -Wall -O2 \
+            -o build/gta_sa_online_client.elf \
+            client/ps3/client.c
 
-          if [ -z "$PPU_GCC" ]; then
-            echo "PPU-GCC nao encontrado no pacote."
-            exit 1
-          fi
-
-          echo "$(dirname "$PPU_GCC")" >> "$GITHUB_PATH"
-          "$PPU_GCC" --version
-          
+      - name: Upload PS3 build
+        uses: actions/upload-artifact@v4
+        with:
+          name: gta-sa-online-ps3
+          path: build/gta_sa_online_client.elf
