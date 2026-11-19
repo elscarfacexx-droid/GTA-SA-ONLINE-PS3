@@ -21,22 +21,12 @@ jobs:
             "https://github.com/ps3dev/ps3toolchain/releases/download/nightly-2026-10-11/ps3dev-linux-X64.tar.gz" \
             -o "$RUNNER_TEMP/ps3dev.tar.gz"
 
-      - name: Extract PS3 toolchain
+      - name: Extract and inspect toolchain
         run: |
           mkdir -p "$RUNNER_TEMP/ps3dev"
-      find "$RUNNER_TEMP/ps3dev" -maxdepth 5 -type d -iname '*psl1ght*'
+          tar -xzf "$RUNNER_TEMP/ps3dev.tar.gz" -C "$RUNNER_TEMP/ps3dev"
+          echo "Procurando PSL1GHT..."
+          find "$RUNNER_TEMP/ps3dev" -maxdepth 6 -iname '*psl1ght*' -print
+          echo "Procurando PPU-GCC..."
+          find "$RUNNER_TEMP/ps3dev" -name ppu-gcc -print
 
-      - name: Compile PS3 client
-        run: |
-          PPU_GCC="$(find "$RUNNER_TEMP/ps3dev" -name ppu-gcc | head -n 1)"
-          test -n "$PPU_GCC"
-          mkdir -p build
-          "$PPU_GCC" -Wall -O2 \
-            -o build/gta_sa_online_client.elf \
-            client/ps3/client.c
-
-      - name: Upload PS3 build
-        uses: actions/upload-artifact@v4
-        with:
-          name: gta-sa-online-ps3
-          path: build/gta_sa_online_client.elf
