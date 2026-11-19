@@ -19,14 +19,16 @@ jobs:
           curl -fL --retry 3 \
             "https://github.com/ps3dev/ps3toolchain/releases/download/nightly-2026-10-11/ps3dev-linux-X64.tar.gz" \
             -o "$RUNNER_TEMP/ps3dev.tar.gz"
-
-      - name: Extract toolchain
-        run: |
           mkdir -p "$RUNNER_TEMP/ps3dev"
           tar -xzf "$RUNNER_TEMP/ps3dev.tar.gz" -C "$RUNNER_TEMP/ps3dev"
 
-      - name: Inspect PSL1GHT repository
+      - name: Download PSL1GHT
         run: |
           git clone --depth 1 https://github.com/ps3dev/PSL1GHT.git "$RUNNER_TEMP/PSL1GHT"
-          echo "PSL1GHT baixado."
-          ls "$RUNNER_TEMP/PSL1GHT"
+
+      - name: Inspect PSL1GHT
+        run: |
+          echo "Pastas principais:"
+          find "$RUNNER_TEMP/PSL1GHT" -maxdepth 2 -type d
+          echo "Arquivos de configuração:"
+          find "$RUNNER_TEMP/PSL1GHT" -maxdepth 3 -type f \( -name 'Makefile' -o -name 'configure' -o -name '*.mk' \)
