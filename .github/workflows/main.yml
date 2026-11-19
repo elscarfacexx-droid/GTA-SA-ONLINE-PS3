@@ -34,7 +34,9 @@ jobs:
 
       - name: Download PSL1GHT
         run: |
-          git clone --depth 1 https://github.com/ps3dev/PSL1GHT.git "$RUNNER_TEMP/PSL1GHT"  
+          git clone --depth 1 https://github.com/ps3dev/PSL1GHT.git "$RUNNER_TEMP/PSL1GHT"
+
+      - name: Build and install PSL1GHT
         run: |
           export PS3DEV="$RUNNER_TEMP/ps3dev/ps3dev"
           export PSL1GHT="$RUNNER_TEMP/psl1ght-install"
@@ -56,3 +58,4 @@ jobs:
           echo "Verificando PSL1GHT:"
           test -d "$PSL1GHT/ppu"
           echo "SDK instalado."
+          
