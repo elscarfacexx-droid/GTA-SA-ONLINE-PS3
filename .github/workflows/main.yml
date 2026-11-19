@@ -24,7 +24,7 @@ jobs:
       - name: Extract PS3 toolchain
         run: |
           mkdir -p "$RUNNER_TEMP/ps3dev"
-          tar -xzf "$RUNNER_TEMP/ps3dev.tar.gz" -C "$RUNNER_TEMP/ps3dev"
+      find "$RUNNER_TEMP/ps3dev" -maxdepth 5 -type d -iname '*psl1ght*'
 
       - name: Compile PS3 client
         run: |
