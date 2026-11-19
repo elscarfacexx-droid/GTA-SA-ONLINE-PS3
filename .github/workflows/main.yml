@@ -1,0 +1,19 @@
+name: PS3 Project Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download project
+        uses: actions/checkout@v4
+
+      - name: Show project files
+        run: |
+          echo "GTA SA ONLINE PS3"
+          ls -R
